@@ -9,24 +9,24 @@ Desafio_Eng_Dados/
 │
 ├── app/
 
-│   ├── daily_update.py
+  │   ├── daily_update.py
 
-│   ├── extract.py
+  │   ├── extract.py
 
-│   ├── load.py
+  │   ├── load.py
 
-│   ├── transform.py
+  │   ├── transform.py
 
-│   ├── proposicoes.csv
+  │   ├── proposicoes.csv
 
-│   ├── proposicoes_clean.csv
+  │   ├── proposicoes_clean.csv
 
-│   ├── tramitacoes.csv
+  │   ├── tramitacoes.csv
 
 │
 ├── test/
 
-│   ├── tests.py
+  │   ├── tests.py
 
 │
 
