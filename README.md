@@ -5,8 +5,10 @@ O projeto Desafio_Eng_Dados foi desenvolvido para extrair, transformar e carrega
 ## Estrutura do Projeto
 
 Desafio_Eng_Dados/
+
 │
 ├── app/
+
 │   ├── daily_update.py
 
 │   ├── extract.py
