@@ -7,7 +7,6 @@ O projeto Desafio_Eng_Dados foi desenvolvido para extrair, transformar e carrega
 Desafio_Eng_Dados/
 
 │
-├── app/
 
   │   ├── daily_update.py
 
@@ -22,10 +21,7 @@ Desafio_Eng_Dados/
   │   ├── proposicoes_clean.csv
 
   │   ├── tramitacoes.csv
-
-│
-├── test/
-
+  
   │   ├── tests.py
 
 │
@@ -64,7 +60,7 @@ Contém a lógica para transformar os dados extraídos no formato necessário pa
 #### load.py
 Contém a lógica para carregar os dados transformados no banco de dados PostgreSQL.
 
-#### Os arquivos csv servem para transferir as tabelas entre os scripts python
+#### Os arquivos csv servem para transferir as tabelas entre os scripts python, proposicao não subiu devido ao tamanho do arquivo.
 
 #### tests.py
 O teste verifica a presença de registros duplicados no banco de dados PostgreSQL.
