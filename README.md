@@ -1,81 +1,55 @@
 # Desafio de Engenharia de Dados | ETL de Proposições Legislativas
 
-Olá, candidato! Bem-vindo ao nosso desafio de engenharia de dados, que visa avaliar sua habilidade em manipular e processar dados de uma API e gerenciar um banco de dados de forma eficaz.
+O projeto Desafio_Eng_Dados foi desenvolvido para extrair, transformar e carregar dados relacionados a proposições legislativas de uma API externa para um banco de dados PostgreSQL. Este projeto utiliza Docker e Docker Compose para gerenciar o ambiente da aplicação e suas dependências.
 
-## 🚀 Objetivo:
+## Estrutura do Projeto
 
-Desenvolver um pipeline de dados em Python para extrair informações sobre proposições legislativas do estado de Minas Gerais para o ano de 2023, realizar a limpeza necessária dos dados e carregá-los em um esquema de banco de dados relacional.
+Desafio_Eng_Dados/
+│
+├── app/
+│   ├── daily_update.py
+│   ├── extract.py
+│   ├── load.py
+│   ├── transform.py
+│   ├── proposicoes.csv
+│   ├── proposicoes_clean.csv
+│   ├── tramitacoes.csv
+│
+├── test/
+│   ├── tests.py
+│
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+└── README.md
 
-## 💻 Tecnologias:
+## Executando o Projeto
+Pré-requisitos
+Certifique-se de ter o Docker e o Docker Compose instalados em sua máquina.
 
-- Python
-- Qualquer banco de dados relacional (PostgreSQL, MySQL, etc.)
-- Docker
+### Construindo e Executando os Serviços
 
-## 📜 Requisitos do Projeto:
+#### Para construir e executar os contêineres Docker, execute o seguinte comando no diretório raiz do projeto:
+docker-compose up --build
 
-### 1. Extração de Dados:
+#### Parando os Serviços
+Para parar os contêineres em execução, use:
+docker-compose down
 
-- Acesse os dados por meio do endpoint da API: `https://dadosabertos.almg.gov.br/ws/proposicoes/pesquisa/direcionada?tp=1000&formato=json&ano=2023&ord=3`.
-- Consulte a [documentação](http://dadosabertos.almg.gov.br/ws/proposicoes/ajuda#Pesquisa%20Direcionada%20%C3%A0s%20Proposi%C3%A7%C3%B5es%20em%20Tramita%C3%A7%C3%A3o) da API para compreender os parâmetros e a estrutura dos dados disponíveis.
+## Arquivos e Scripts
+#### daily_update.py
+Este script é o ponto de entrada principal para a aplicação. Ele coordena a extração, transformação e carregamento dos dados.
 
-### 2. Limpeza de Dados:
+#### extract.py
+Contém a lógica para extrair dados da API externa.
 
-- Remova espaçamentos desnecessários, caracteres especiais como "\n", e ajuste os formatos de data e texto conforme necessário.
+#### transform.py
+Contém a lógica para transformar os dados extraídos no formato necessário para o carregamento.
 
-### 3. Carregamento de Dados:
+#### load.py
+Contém a lógica para carregar os dados transformados no banco de dados PostgreSQL.
 
-- Carregue os dados limpos em um banco de dados relacional seguindo o esquema abaixo.
+#### Os arquivos csv servem para transferir as tabelas entre os scripts python
 
-### 4. Dockerização:
-
-- Dockerize a aplicação e o banco de dados para garantir a portabilidade e fácil configuração do ambiente de desenvolvimento e produção.
-
-## Esquema de Banco de Dados:
-
-### Tabela: Proposição
-| Campo            | Tipo      | Descrição                                                                                         |
-|------------------|-----------|---------------------------------------------------------------------------------------------------|
-| id               | Incremental| ID automático                                                                                    |
-| author           | String    | Autor da proposição, ex. "Governador Romeu Zema Neto"                                             |
-| presentationDate | Timestamp | Data de apresentação da proposição, ex. "2022-10-06T00:00:00Z"                                    |
-| ementa           | String    | Assunto da proposição, ex. "Encaminha o Projeto de Lei 4008 2022..."                              |
-| regime           | String    | Regime de tramitação da proposição, ex. "Especial"                                                |
-| situation        | String    | Situação atual da proposição, ex. "Publicado"                                                     |
-| propositionType  | String    | Tipo da proposição, ex. "MSG"                                                                     |
-| number           | String    | Número da proposição, ex. "300"                                                                   |
-| year             | Integer   | Ano da proposição, ex. 2022                                                                       |
-| city             | String    | Cidade fixa "Belo Horizonte"                                                                      |
-| state            | String    | Estado fixo "Minas Gerais"                                                                        |
-
-### Tabela: Tramitação
-| Campo            | Tipo         | Descrição                                                                                         |
-|------------------|--------------|---------------------------------------------------------------------------------------------------|
-| id               | Incremental  | ID automático                                                                                     |
-| createdAt        | Timestamp    | Data do registro da tramitação, ex. "2022-10-04T00:00:00Z"                                        |
-| description      | String       | Descrição do histórico da tramitação, ex. "Proposição lida em Plenário.\nPublicada no DL..."      |
-| local            | String       | Local da tramitação, ex. "Plenário"                                                               |
-| propositionId    | ForeignKey   | Chave estrangeira que referencia o ID da proposição                                               |
-
-## 🥇 Diferenciais:
-
-- Uso de Docker Compose para orquestração de múltiplos containers.
-- Documentação clara do processo de configuração e execução do pipeline.
-- Implementação de testes para validar a integridade dos dados.
-- Evitar a inserção de dados duplicados no banco.
-- Script de ingestão diária dos dados (atualizados).
-
-## 🗳️ Instruções de Submissão:
-
-1. Faça um fork deste repositório para sua conta pessoal do GitHub.
-2. Commit e push suas mudanças para o seu fork.
-3. Envie um e-mail para [brenno.natal@khipo.com.br] com o link do repositório.
-
-## 🧪 Avaliação:
-
-- Estrutura do código e organização.
-- Uso adequado das ferramentas e tecnologias.
-- Implementação dos requisitos do projeto.
-- Otimização de performance.
-
-Boa sorte com o desafio! Estamos ansiosos para ver sua solução.
+#### tests.py
+O teste verifica a presença de registros duplicados no banco de dados PostgreSQL.
