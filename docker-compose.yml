@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ../Desafio_Eng_Dados
+      dockerfile: Dockerfile
+    container_name: desafio_khipo_etl
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/app
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    container_name: khipo_db_etl
+    environment:
+      POSTGRES_USER: khipo_user
+      POSTGRES_PASSWORD: khipo
+      POSTGRES_DB: khipo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+
