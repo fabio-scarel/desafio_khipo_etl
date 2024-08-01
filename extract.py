@@ -5,7 +5,7 @@ import pandas as pd
 url = 'https://dadosabertos.almg.gov.br/ws/proposicoes/pesquisa/direcionada'
 
 
-def extract_data(base_url, ano=2023, tp=100, formato='json', order=3):
+def extract_proposicoes(base_url, ano=2023, tp=100, formato='json', order=3, max_page=3):
     global response
     todas_proposicoes = []
     pagina = 1
@@ -17,7 +17,7 @@ def extract_data(base_url, ano=2023, tp=100, formato='json', order=3):
             'formato': formato,
             'ano': ano,
             'ord': order,
-            'p': pagina  # Adiciona o número da página
+            'p': pagina
         }
 
         retries = 0
@@ -41,7 +41,10 @@ def extract_data(base_url, ano=2023, tp=100, formato='json', order=3):
                 if len(lista_proposicoes) < tamanho_pagina:
                     return pd.DataFrame(todas_proposicoes)
 
-                time.sleep(1)
+                if pagina > max_page:
+                    return pd.DataFrame(todas_proposicoes)
+
+                # time.sleep(1)
                 break
 
             except requests.exceptions.HTTPError:
@@ -56,30 +59,32 @@ def extract_data(base_url, ano=2023, tp=100, formato='json', order=3):
                     raise
 
 
-def extract_main(api_url):
-    df_proposicoes = extract_data(api_url)
-    df_proposicoes = df_proposicoes.reset_index(names='id')
-
+def create_tramitacoes(proposicoes):
+    
     tramitacoes_list = []
 
-    for _, row in df_proposicoes.iterrows():
+    for _, row in proposicoes.iterrows():
         numero = row['id']
         for passo in row['listaHistoricoTramitacoes']:
             add_row = {
-                'createdAt': passo['data'],
+                'createdat': passo['data'],
                 'description': passo['historico'],
                 'local': passo['local'],
-                'propositionId': numero
+                'propositionid': numero
             }
             tramitacoes_list.append(add_row)
 
-    df_tramitacoes = pd.DataFrame(tramitacoes_list, columns=['createdAt', 'description', 'local', 'propositionId'])
+    tramitacoes = pd.DataFrame(tramitacoes_list, columns=['createdat', 'description', 'local', 'propositionid'])
+    tramitacoes = tramitacoes.reset_index(names='id')
 
-    df_tramitacoes = df_tramitacoes.reset_index(names='id')
+    return tramitacoes
 
-    return df_proposicoes, df_tramitacoes
 
-proposicoes_final, tramitacoes_final = extract_main(url)
+if __name__ == '__main__':
 
-proposicoes_final.to_csv('proposicoes.csv', index=False)
-tramitacoes_final.to_csv('tramitacoes.csv', index=False)
+    df_proposicoes = extract_proposicoes(url).reset_index(names='id')
+    df_tramitacoes = create_tramitacoes(df_proposicoes)
+
+    df_proposicoes.to_csv('proposicoes.csv', index=False)
+    df_tramitacoes.to_csv('tramitacoes.csv', index=False)
+
