@@ -1,5 +1,15 @@
 import pandas as pd
 
+colunas = [
+    'id',
+    'autor',
+    'dataPublicacao',
+    'ementa',
+    'regime',
+    'situacao',
+    'siglaTipoProjeto',
+    'numero',
+]
 
 def remove_nova_linha(texto):
     return texto.replace('\n', ' ')
@@ -15,40 +25,52 @@ def remove_partidos(remove_partido, lista_partidos):
     return remove_partido.strip()
 
 
-df_proposicoes = pd.read_csv('proposicoes.csv')
-df_tramitacoes = pd.read_csv('tramitacoes.csv')
+def select_columns(all_proposicoes, colunas_desejadas):
+    """
+    Select the columns you want from the original database
+    """
 
-colunas = [
-    'id',
-    'autor',
-    'dataPublicacao',
-    'ementa',
-    'regime',
-    'situacao',
-    'siglaTipoProjeto',
-    'numero',
-]
+    proposicoes = all_proposicoes[colunas_desejadas]
+    proposicoes.columns = ['id', 'author', 'presentationdate', 'ementa', 'regime', 'situation',
+                            'propositiontype', 'number']
+
+    return proposicoes
 
 
-def transform_main(all_proposicoes, tramitacoes, colunas_desejadas):
-    proposicoes_tratadas = all_proposicoes[colunas_desejadas]
-    proposicoes_tratadas.columns = ['id', 'author', 'presentationDate', 'ementa', 'regime', 'situation',
-                                    'propositionType', 'number']
+def add_city_state(proposicoes):
+    """
+    Add the location from the information
+    """
+    proposicoes = proposicoes.assign(city='Belo Horizonte', state='Minas Gerais')
 
-    proposicoes_tratadas['city'] = 'Belo Horizonte'
-    proposicoes_tratadas['state'] = 'Minas Gerais'
+    return proposicoes
 
-    proposicoes_tratadas['year'] = proposicoes_tratadas['presentationDate'].apply(
+
+def transform_ementa_year(proposicoes):
+    """
+    Given the Presentation Date on the table, set the year of the proposition or inform that this information
+    is not available. Also removes the paragraphs " \ n " present on the text.
+    """
+    
+    proposicoes.loc[:, 'year'] = proposicoes.loc[:, 'presentationdate'].apply(
         lambda year: str(year)[:4])
 
-    proposicoes_tratadas['ementa'] = proposicoes_tratadas['ementa'].apply(
+    proposicoes.loc[:, 'ementa'] = proposicoes.loc[:, 'ementa'].apply(
         lambda ementa: 'Informação Não Disponível' if type(ementa) != str else ementa)
 
-    proposicoes_tratadas['ementa'] = proposicoes_tratadas['ementa'].apply(
+    proposicoes.loc[:, 'ementa'] = proposicoes.loc[:, 'ementa'].apply(
         lambda ementa: ementa.replace('\n', ' '))
 
+    return proposicoes
+
+
+def transform_author(proposicoes):
+    """
+    Cleans up the information from the author, removing their party, the spaces and the paragraphs.
+    """
+
     palavras = []
-    for autor in proposicoes_tratadas['author'].apply(lambda autor_partidos: str(autor_partidos).split(' ')):
+    for autor in proposicoes['author'].apply(lambda autor_partidos: str(autor_partidos).split(' ')):
         palavras.append(autor[-1])
     palavras = list(set(palavras))
 
@@ -59,23 +81,50 @@ def transform_main(all_proposicoes, tramitacoes, colunas_desejadas):
 
     partidos.sort(reverse=True)
 
-    proposicoes_tratadas['author'] = proposicoes_tratadas['author'].apply(remove_partidos, lista_partidos=partidos)
+    proposicoes.loc[:, 'author'] = proposicoes['author'].apply(
+        remove_partidos, lista_partidos=partidos)
 
-    proposicoes_tratadas['author'] = proposicoes_tratadas['author'].apply(
+    proposicoes.loc[:, 'author'] = proposicoes['author'].apply(
         lambda author: author.replace('\n', ', '))
 
-    proposicoes_tratadas['author'] = proposicoes_tratadas['author'].apply(
+    proposicoes.loc[:, 'author'] = proposicoes['author'].apply(
         lambda author: author.replace('PRD', ', '))
 
-    proposicoes_tratadas['author'] = proposicoes_tratadas['author'].apply(remove_espacos_extras)
+    proposicoes.loc[:, 'author'] = proposicoes['author'].apply(
+        remove_espacos_extras)
 
-    tramitacoes['description'] = tramitacoes['description'].apply(
+    return proposicoes
+
+
+def transform_tramitacoes(tramitacoes):
+    """
+    Removes the paragraphs present on the descriptions.
+    """
+
+    tramitacoes.loc[:, 'description'] = tramitacoes['description'].apply(
         lambda description: description.replace('\n', ' '))
 
-    return proposicoes_tratadas, tramitacoes
+    tramitacoes = tramitacoes.drop_duplicates(subset=['createdat', 'description', 'local', 'propositionid'])
+
+    return tramitacoes
 
 
-proposicoes_final, tramitacoes_final = transform_main(df_proposicoes, df_tramitacoes, colunas)
+def transform_data(df_proposicoes, colunas, df_tramitacoes):
+    
+    proposicoes_0 = select_columns(df_proposicoes, colunas)
+    proposicoes_1 = add_city_state(proposicoes_0)
+    proposicoes_2 = transform_ementa_year(proposicoes_1)
+    proposicoes_final = transform_author(proposicoes_2)
+    tramitacoes_final = transform_tramitacoes(df_tramitacoes)
 
-proposicoes_final.to_csv('proposicoes_clean.csv', index=False)
-tramitacoes_final.to_csv('tramitacoes.csv', index=False)
+    return proposicoes_final, tramitacoes_final
+
+if __name__ == '__main__':
+
+    df_proposicoes = pd.read_csv('proposicoes.csv')
+    df_tramitacoes = pd.read_csv('tramitacoes.csv')
+
+    proposicoes_final, tramitacoes_final = transform_data(df_proposicoes, colunas, df_tramitacoes)
+
+    proposicoes_final.to_csv('proposicoes_clean.csv', index=False)
+    tramitacoes_final.to_csv('tramitacoes.csv', index=False)
