@@ -50,9 +50,9 @@ tram_update_testing = {
         'atualizações'
     ],
     'local': [
-        'Rua', 
-        'das Palmeiras',
-        '1234'
+        'Belo Horizonte', 
+        'Belo Horizonte',
+        'Belo Horizonte'
     ],
     'propositionid': [101, 102, 103]
 }
