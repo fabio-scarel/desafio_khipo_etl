@@ -50,9 +50,9 @@ tram_update_testing = {
         'atualizações'
     ],
     'local': [
-        'Avenida', 
-        'Itapolis',
-        '2167'
+        'Rua', 
+        'das Palmeiras',
+        '1234'
     ],
     'propositionid': [101, 102, 103]
 }
